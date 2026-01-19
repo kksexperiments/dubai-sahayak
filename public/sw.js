@@ -3,9 +3,7 @@ const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/manifest.json',
-    '/src/main.jsx',
-    '/src/App.jsx',
-    '/src/styles/App.css',
+    '/app-icon.png',
     '/vite.svg'
 ];
 
@@ -15,6 +13,7 @@ self.addEventListener('install', (event) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
+    self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
