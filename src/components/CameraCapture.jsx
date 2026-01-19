@@ -61,7 +61,7 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     return (
         <div className="camera-container">
             <div className="camera-header">
-                <button onClick={onCancel} className="icon-btn close-btn">
+                <button onClick={onCancel} className="close-btn">
                     <X size={32} />
                 </button>
                 <h2>ফটো তোলক (Take Photo)</h2>

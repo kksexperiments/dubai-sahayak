@@ -247,10 +247,116 @@ main {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: black;
-    z-index: 1000;
+    height: 100dvh;
+    background: #000;
+    z-index: 2000;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+}
+
+.camera-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    padding-top: calc(1rem + env(safe-area-inset-top));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+    z-index: 10;
+}
+
+.camera-header h2 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.close-btn {
+    position: absolute;
+    left: 1rem;
+    top: calc(1rem + env(safe-area-inset-top));
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.viewfinder-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.viewfinder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem 1rem;
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+    z-index: 10;
+}
+
+.capture-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: transparent;
+    padding: 4px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.capture-btn:active {
+    transform: scale(0.9);
+}
+
+.capture-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--primary-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-tip {
+    color: white;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.camera-error {
+    padding: 2rem;
+    text-align: center;
+    color: var(--error);
 }
 
 /* Response Display Premium */
