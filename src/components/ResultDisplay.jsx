@@ -22,7 +22,7 @@ const ResultDisplay = ({ result, onReset, onListen, isPlayingAudio }) => {
 
             {result.explanation && (
                 <div className="result-section">
-                    <h3><Info size={24} /> ব্যাখ্যা:</h3>
+                    <h3><Info size={24} /> ব্যাখ্যা আৰু ইতিহাস:</h3>
                     <p>{result.explanation}</p>
                 </div>
             )}

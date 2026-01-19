@@ -13,49 +13,47 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'No image provided' });
         }
 
+        // Check for API key presence
+        if (!process.env.VITE_GEMINI_API_KEY) {
+            console.error("CRITICAL: VITE_GEMINI_API_KEY is missing from environment variables.");
+            return res.status(500).json({ error: "API Key চাৰ্ভাৰত পোৱা নগ'ল। অনুগ্ৰহ কৰি Vercel ত Key টো যোগ কৰক।" });
+        }
+
         // Remove base64 prefix if exists
         const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const systemPrompt = `
-You are a helpful travel guide for an Assamese-speaking traveler in Dubai who has limited English proficiency.
+You are a helpful, senior travel guide for an Assamese-speaking traveler in Dubai.
+The traveler has limited English proficiency and needs clear, reassurance, and detailed information.
 
-Analyze this image and provide a response in Assamese language ONLY.
+Analyze this image and provide a comprehensive response in simple, everyday Assamese.
 
-Your response must include these sections with exact headers:
+Your response MUST follow this structure with exact headers:
 
 **চিনাক্তকৰণ (Identification):**
-What is visible in this image? (sign, place, menu, ticket machine, etc.) - 1-2 sentences
+Identify the object or place. Is it a landmark, a product, a sign, or a restaurant menu?
 
 **অনুবাদ (Translation):**
-If there is any English/Arabic text visible, translate it accurately to Assamese.
-For each text element, format as: "English text" = অসমীয়া অনুবাদ
+Translate any visible English or Arabic text into simple Assamese. 
+Format: "Original Text" = অনুবাদ
 
-**ব্যাখ্যা (Explanation):**
-Provide context - what is this place/thing? Why is it important for a traveler? 
-What cultural or practical information should they know? - 2-3 sentences
+**ব্যাখ্যা আৰু ইতিহাস (Explanation & History):**
+Provide a deep dive. What is this place or thing? What is the history behind it? 
+Why is it significant in Dubai? Explain what it means for the traveler (e.g., if it's a food item, explain what's in it; if it's a landmark, share a fun historical fact). - 3-5 sentences
 
 **পৰৱৰ্তী পদক্ষেপ (Next Steps):**
-Tell the traveler EXACTLY what they should do next. Be specific and actionable.
-Use numbered steps (১. ২. ৩.) for clarity.
-Example: "১. Visitors শাৰীত থিয় দিয়ক ২. পাছপৰ্ট হাতত ৰাখক"
+Actionable advice. What should the traveler do now? (Go inside, wait for a signal, buy a ticket, or simply enjoy the view).
+Use numbered steps (১. ২. ৩.).
 
 **উপযোগী পৰামৰ্শ (Helpful Tip):**
-Share one practical tip about this location or situation that would make their experience better.
-Could be about timing, costs, cultural norms, or shortcuts. - 1-2 sentences
+One elite travel tip related to this context to make their trip easier.
 
-**LANGUAGE GUIDELINES:**
-- Use simple, everyday Assamese (not literary/formal)
-- Common Hindi loanwords are OK: "passport" (পাছপৰ্ট), "ticket" (টিকট), "metro" (মেট্ৰ')
-- Avoid English words where good Assamese equivalents exist
-- Be warm, encouraging, and reassuring in tone
-- If image is unclear: "ফটোখন স্পষ্ট নহয়। অনুগ্ৰহ কৰি পুনৰ তোলক।"
-- If no text visible: Still provide helpful guidance based on what you can see
-
-**RESPONSE FORMAT:**
-Always use the exact Assamese section headers shown above with ** bold markers.
-Keep sections concise - this will be read on a mobile phone screen.
+LANGUAGE GUIDELINES:
+- Use warm, respectful, and informal Assamese (Elder-friendly).
+- Explain technical or English terms in parenthesis.
+- If the photo is too blurry to identify, politely ask for another photo.
 `;
 
         const result = await model.generateContent([
@@ -69,25 +67,29 @@ Keep sections concise - this will be read on a mobile phone screen.
         ]);
 
         const responseText = result.response.text();
+        console.log("Gemini Response received.");
 
         // Parse the response into structured sections
         const sections = {
             identification: extractSection(responseText, "চিনাক্তকৰণ"),
             translation: extractSection(responseText, "অনুবাদ"),
-            explanation: extractSection(responseText, "ব্যাখ্যা"),
+            explanation: extractSection(responseText, "ব্যাখ্যা আৰু ইতিহাস"),
             nextSteps: extractSection(responseText, "পৰৱৰ্তী পদক্ষেপ")
                 ?.split('\n')
                 .filter(line => line.trim())
                 .map(line => line.trim()),
             tip: extractSection(responseText, "উপযোগী পৰামৰ্শ"),
-            raw: responseText // Fallback
+            raw: responseText
         };
 
         return res.status(200).json(sections);
 
     } catch (error) {
-        console.error("Gemini API Error:", error);
-        return res.status(500).json({ error: "API ত কিবা সমস্যা হৈছে। অনুগ্ৰহ কৰি আকৌ চেষ্টা কৰক।" });
+        console.error("Gemini API Error details:", error.message);
+        return res.status(500).json({
+            error: "বিশ্লেষণ কৰোঁতে সমস্যা হৈছে।",
+            details: error.message
+        });
     }
 };
 
